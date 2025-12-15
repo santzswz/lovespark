@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Você</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:linear-gradient(135deg,#ff5f9e,#ff9fbf);overflow:hidden;color:#fff;font-family:'Quicksand',sans-serif}
+
+/* LOADER */
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50}
+.bar-container{width:320px;height:38px}
+.liquid-bar{width:0%;height:100%;border-radius:999px;background:linear-gradient(180deg,#6fffff,#00d9ff,#0066ff);box-shadow:0 0 35px rgba(0,240,255,.95), inset 0 4px 8px rgba(255,255,255,.7);animation:wave .6s infinite alternate}
+@keyframes wave{0%{transform:translateY(-1px)}100%{transform:translateY(1px)}}
+.percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:2px;text-shadow:0 0 12px #fff}
+.melting{animation:meltDown 3s forwards}
+@keyframes meltDown{0%{height:38px}100%{height:240vh;opacity:0;filter:blur(22px)}}
+
+/* TEXTO PRINCIPAL */
+#message{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.6rem;opacity:0;white-space:nowrap}
+#message.top{top:24px;font-size:1.1rem;opacity:.95;transition:all 1.2s ease}
+.cursor::after{content:'|';animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* TEXTO LONGO */
+.love-text{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:800px;text-align:center;line-height:1.9;font-size:1.05rem;opacity:0;transition:opacity 2s ease}
+.love-text.show{opacity:1}
+.highlight{color:#ff2f6d;text-shadow:0 0 10px rgba(255,47,109,.8)}
+
+/* PLAYER */
+.player{position:fixed;bottom:12%;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;opacity:0;transition:opacity 1.5s ease}
+.player.show{opacity:1}
+.cover{width:54px;height:54px;border-radius:8px}
+.bar{width:200px;height:4px;background:rgba(255,255,255,.3);border-radius:10px;overflow:hidden}
+.bar span{display:block;height:100%;width:0%;background:#fff}
+
+/* EU TE AMO */
+.love{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);font-size:2.4rem;opacity:0;text-shadow:0 0 25px rgba(255,255,255,.9)}
+.love.show{opacity:1}
+.love.pulse{animation:pulse .86s infinite}
+@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.08)}}
+
+/* ABA FOTOS */
+.photos-screen{position:fixed;inset:0;background:linear-gradient(135deg,#ff5f9e,#ff9fbf);transform:translateX(100%);transition:transform .8s ease;z-index:40}
+.photos-screen.show{transform:translateX(0)}
+.photos{height:100%;display:flex;align-items:center;justify-content:center;gap:20px}
+.photos img,.video-wrapper{width:130px;height:180px;background:#fff;padding:8px 8px 26px;border-radius:6px;box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.video-wrapper{background:#000;position:relative;cursor:pointer}
+.video-wrapper video{width:100%;height:100%;object-fit:cover}
+.play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem}
+
+/* MODAL VIDEO */
+#videoModal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:80}
+#videoModal.show{opacity:1;pointer-events:auto}
+#videoModal video{width:90%;max-width:420px;border-radius:12px}
+
+#emoji-container{position:fixed;inset:0;pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="bar-container">
+    <div id="liquid" class="liquid-bar"></div>
+    <div id="percent" class="percent">0%</div>
+  </div>
+</div>
+
+<div id="message" class="cursor"></div>
+
+<div class="love-text" id="loveText">
+<p><span class="highlight">Minha princesa</span>, neste texto eu só quero dizer o quanto você tem sido boa pra mim. Todos nossos momentos juntos foram <span class="highlight">marcantes</span>. Tenho muito orgulho de você e sempre terei. Quero que você sempre se sinta <span class="highlight">amada</span>. Tendo você eu terei <span class="highlight">TUDO</span>.</p>
+</div>
+
+<div class="love" id="love">EU TE AMO</div>
+
+<div class="player" id="player">
+  <img class="cover" src="capa.jpg">
+  <div class="bar"><span id="musicBar"></span></div>
+</div>
+
+<div class="photos-screen" id="photosScreen">
+  <div class="photos">
+    <img src="foto1.jpg">
+    <img src="foto2.jpg">
+    <div class="video-wrapper" onclick="openVideo()">
+      <video muted playsinline><source src="video.mp4" type="video/mp4"></video>
+      <span class="play-icon">▶</span>
+    </div>
+  </div>
+</div>
+
+<div id="videoModal" onclick="closeVideo()">
+  <video id="fullVideo" controls playsinline></video>
+</div>
+
+<audio id="music" src="me-desculpa-jayz.mp3"></audio>
+<div id="emoji-container"></div>
+
+<script>
+const liquid=document.getElementById('liquid');
+const percent=document.getElementById('percent');
+const loader=document.getElementById('loader');
+const message=document.getElementById('message');
+const love=document.getElementById('love');
+const loveText=document.getElementById('loveText');
+const music=document.getElementById('music');
+const bar=document.getElementById('musicBar');
+const player=document.getElementById('player');
+const photosScreen=document.getElementById('photosScreen');
+
+let p=0;let i=0;const text='Cada detalhe aqui pulsa no mesmo ritmo que penso em você';
+
+function type(){if(i<text.length){message.textContent+=text[i++];setTimeout(type,70)}}
+
+const load=setInterval(()=>{
+ p++;liquid.style.width=p+'%';percent.textContent=p+'%';
+ if(p>=100){clearInterval(load);liquid.classList.add('melting');percent.style.opacity='0';
+ setTimeout(()=>{loader.style.display='none';message.style.opacity='1';type()},2600);
+ setTimeout(()=>{message.classList.add('top');loveText.classList.add('show');love.classList.add('show');love.classList.add('pulse');
+ music.currentTime=125;music.volume=0;music.play();player.classList.add('show');
+ let v=0;const fade=setInterval(()=>{v+=.02;music.volume=Math.min(v,.6);if(v>=.6)clearInterval(fade)},100);
+ },5500);
+ }
+},40);
+
+setInterval(()=>{if(!music.paused&&music.duration){bar.style.width=(music.currentTime/music.duration*100)+'%'}},500);
+
+let startX=0,screen='main';
+document.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+ const diff=e.changedTouches[0].clientX-startX;
+ if(diff<-60&&screen==='main'){photosScreen.classList.add('show');screen='photos';navigator.vibrate&&navigator.vibrate(15)}
+ if(diff>60&&screen==='photos'){photosScreen.classList.remove('show');screen='main';navigator.vibrate&&navigator.vibrate(15)}
+});
+
+function openVideo(){document.getElementById('videoModal').classList.add('show');const v=document.getElementById('fullVideo');v.src='video.mp4';music.pause();}
+function closeVideo(){const m=document.getElementById('videoModal');const v=document.getElementById('fullVideo');v.pause();m.classList.remove('show');music.play();}
+
+const emojiContainer=document.getElementById('emoji-container');const emojis=['❤️','💖','✨','💕'];
+setInterval(()=>{const e=document.createElement('div');e.textContent=emojis[Math.floor(Math.random()*emojis.length)];e.style.position='absolute';e.style.left=Math.random()*100+'vw';e.style.top='-40px';e.style.fontSize='1.4rem';e.style.transition='transform 5s linear,opacity 5s';emojiContainer.appendChild(e);requestAnimationFrame(()=>{e.style.transform='translateY(110vh)';e.style.opacity='0'});setTimeout(()=>e.remove(),5000)},300);
+</script>
+</body>
+</html>
